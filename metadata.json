@@ -1,0 +1,6 @@
+{
+  "name": "AKU ICT Incident Operations Portal",
+  "description": "An internal web application for the Aga Khan University Hospital (AKU) ICT Service Desk and support groups to manage, validate and compile monthly Priority 1 (P1) incident integrity reports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

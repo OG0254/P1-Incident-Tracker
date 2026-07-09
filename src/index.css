@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  
+  --color-aku-green: #005A3C;
+  --color-aku-green-dark: #00462E;
+  --color-aku-green-light: #E5F2ED;
+  --color-aku-gold: #C19B40;
+  --color-aku-gold-dark: #A68230;
+  --color-aku-maroon: #8A1538;
+  --color-aku-maroon-dark: #700F2B;
+  --color-aku-maroon-light: #F7E7EB;
+}
+
+/* Base style tweaks for ultimate polish */
+body {
+  font-family: var(--font-sans);
+  background-color: #f8fafc; /* Soft off-white */
+  color: #0f172a; /* Slate 900 */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* Smooth custom scrollbars for table panels */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

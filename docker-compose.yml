@@ -1,0 +1,71 @@
+version: '3.8'
+name: p1-incident-management
+
+services:
+  # 1. PostgreSQL Database: Stores Keycloak configurations, users, and app state
+  postgres-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${KEYCLOAK_DB_NAME}
+      POSTGRES_USER: ${KEYCLOAK_DB_USER}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${KEYCLOAK_DB_USER} -d ${KEYCLOAK_DB_NAME}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Keycloak: Open-Source Identity Provider
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.5
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres-db:5432/${KEYCLOAK_DB_NAME}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KEYCLOAK_MIGRATION_STRATEGY: IGNORE_EXISTING
+      JAVA_OPTS_APPEND: '-Dkeycloak.migration.strategy=IGNORE_EXISTING -Dkeycloak.migration.usersExportStrategy=SKIP'
+    ports:
+      - '8080:8080'
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    volumes:
+      - ./keycloak/import:/opt/keycloak/data/import
+    restart: unless-stopped
+
+  # 3. Existing P1 Incident Operations Portal
+  incident-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: aku-incident-portal:latest
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+      - KEYCLOAK_REALM_URL=http://keycloak:8080/realms/aku-realm
+      - KEYCLOAK_CLIENT_ID=aku-portal
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+    depends_on:
+      - keycloak
+    volumes:
+      - incident-portal-data:/app/data
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+volumes:
+  incident-portal-data:
